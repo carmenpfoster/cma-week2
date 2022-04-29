@@ -1,0 +1,10 @@
+---
+title: "week2"
+author: "Carmen Pfoster"
+date: "29 4 2022"
+output: html_document
+---
+
+```{r}
+
+```
