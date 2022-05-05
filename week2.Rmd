@@ -64,3 +64,14 @@ unfortunately I didn't manage to change the x-axis of the last graph which is wh
 
 ####What is the temporal sampling interval between the locations?
 The temporal sampling interval varies mostly between ca. 10 Minutes and 1.5 hours. There are some periods with a minimal sampling interval is 1 hour.
+
+
+```{r}
+wildschwein_BE <- mutate(wildschwein_BE,E2 = lead(E))
+wildschwein_BE <- mutate(wildschwein_BE,N2 = lead(N))
+wildschwein_BE <- mutate(wildschwein_BE, steplength = sqrt(((E-E2)^2)+(N-N2)^2))
+
+#calculate the speed in m/s
+wildschwein_BE <- mutate(wildschwein_BE, speed = steplength/timelag)
+```
+
