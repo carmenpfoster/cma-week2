@@ -21,3 +21,46 @@ wildschwein_BE <- read_delim("wildschwein_BE_2056.txt",",") # adjust path
 
 wildschwein_BE <- st_as_sf(wildschwein_BE, coords = c("E", "N"), crs = 2056, remove = FALSE)
 ```
+
+```{r}
+#calculating time lag
+wildschwein_BE <- group_by(wildschwein_BE,TierID)
+wildschwein_BE <- mutate(wildschwein_BE,timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")))
+```
+
+```{r}
+#some visualizations of the data
+ggplot(wildschwein_BE, aes(DatetimeUTC, TierID))+
+  geom_line()+
+  ggtitle("measuring period per animal")
+
+ggplot(wildschwein_BE, aes(timelag))+
+  geom_histogram(breaks=seq(0, 15000, by=60))+
+  scale_y_continuous(trans='log10')+
+  ggtitle("Histogramm of timelags")
+```
+
+```{r}
+wildschwein_BE <- wildschwein_BE %>% 
+  mutate(DayMonth = format(as.Date(DatetimeUTC), "%d-%m")) 
+
+wildschwein_BE$DayMonth <- as.Date(wildschwein_BE$DayMonth, format="%d-%m")
+
+ggplot(wildschwein_BE, aes(DayMonth, timelag, color = TierID))+
+  geom_line()+
+  ggtitle("timelags per animal")+
+  scale_x_date(date_labels = "%B", date_breaks = "1 month")+
+  ylim(c(0, 20000))
+```
+
+####How many individuals were tracked?
+There were 3 animals tracked
+
+####For how long were the individual tracked? Are there gaps?
+The tracking for animal 002A started in October 2014 and ended in July 2015. The tracking of Animal 016A started at the same time as 002A but ended at the end of June in 2015. And the animal 018A was tracked between September 2014 and July 2015.
+
+####Were all individuals tracked concurrently or sequentially?
+unfortunately I didn't manage to change the x-axis of the last graph which is why it doesn't look very intuitive. It looks like first only 018A was tracked. From November until March all 3 animals were tracked. After that the tracking was rather irregularly
+
+####What is the temporal sampling interval between the locations?
+The temporal sampling interval varies mostly between ca. 10 Minutes and 1.5 hours. There are some periods with a minimal sampling interval is 1 hour.
