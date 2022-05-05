@@ -75,3 +75,81 @@ wildschwein_BE <- mutate(wildschwein_BE, steplength = sqrt(((E-E2)^2)+(N-N2)^2))
 wildschwein_BE <- mutate(wildschwein_BE, speed = steplength/timelag)
 ```
 
+```{r}
+caro <- read_delim("caro60.txt",",") 
+
+caro <- st_as_sf(caro, coords = c("E", "N"), crs = 2056, remove = FALSE)
+```
+
+```{r}
+seq3 <- seq(from = 1, to = nrow(caro), by = 3)
+seq6 <- seq(from = 1, to = nrow(caro), by = 6)
+seq9 <- seq(from = 1, to = nrow(caro), by = 9)
+
+caro_3 <- dplyr::slice(caro, seq3)
+caro_6 <- dplyr::slice(caro, seq6)
+caro_9 <- dplyr::slice(caro, seq9)
+
+nrow(caro)
+nrow(caro_3)
+nrow(caro_6)
+nrow(caro_9)
+```
+
+```{r}
+#speed caro
+caro <- group_by(caro,TierID)
+caro <- mutate(caro,timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")),
+               E2 = lead(E),
+               N2 = lead(N),
+               steplength = sqrt(((E-E2)^2)+(N-N2)^2),
+               speed = steplength/timelag)
+#speed caro_3
+caro_3 <- group_by(caro_3,TierID)
+caro_3 <- mutate(caro_3,timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")),
+               E2 = lead(E),
+               N2 = lead(N),
+               steplength = sqrt(((E-E2)^2)+(N-N2)^2),
+               speed = steplength/timelag)
+
+#speed caro_6
+caro_6 <- group_by(caro_6,TierID)
+caro_6 <- mutate(caro_6,timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")),
+               E2 = lead(E),
+               N2 = lead(N),
+               steplength = sqrt(((E-E2)^2)+(N-N2)^2),
+               speed = steplength/timelag)
+
+#speed caro_9
+caro_9 <- group_by(caro_9,TierID)
+caro_9 <- mutate(caro_9,timelag = as.integer(difftime(lead(DatetimeUTC),DatetimeUTC, units = "secs")),
+               E2 = lead(E),
+               N2 = lead(N),
+               steplength = sqrt(((E-E2)^2)+(N-N2)^2),
+               speed = steplength/timelag)
+```
+
+```{r}
+ggplot(NULL, aes(E,N))+
+  geom_path(data=caro, color="blue")+
+  geom_path(data=caro_3, color="red")+
+  ggtitle("Comparing original- with 3 minutes-resampled data")
+  
+ggplot(NULL, aes(E,N))+
+  geom_path(data=caro, color="blue")+
+  geom_path(data=caro_6, color="red")+
+  ggtitle("Comparing original- with 6 minutes-resampled data")
+
+ggplot(NULL, aes(E,N))+
+  geom_path(data=caro, color="blue")+
+  geom_path(data=caro_9, color="red")+
+  ggtitle("Comparing original- with 9 minutes-resampled data")
+
+ggplot(NULL, aes(DatetimeUTC, speed))+
+  geom_line(data=caro, col="red")+
+  geom_line(data=caro_3, col="blue")+
+  geom_line(data=caro_6, col="yellow")+
+  geom_line(data=caro_9, col="green")+
+  ggtitle("Comparing derived speed at different sampling intervals")
+```
+When comparing the trajectories of the different interval samples, it can be seen, that the degree of detail reduces with increasing time intervals. Regarding the speed, the complete data set is characterized by higher speed values and more variation. Whereas the 9-minute interval is pretty flat and smooth
