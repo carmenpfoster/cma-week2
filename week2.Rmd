@@ -153,3 +153,18 @@ ggplot(NULL, aes(DatetimeUTC, speed))+
   ggtitle("Comparing derived speed at different sampling intervals")
 ```
 When comparing the trajectories of the different interval samples, it can be seen, that the degree of detail reduces with increasing time intervals. Regarding the speed, the complete data set is characterized by higher speed values and more variation. Whereas the 9-minute interval is pretty flat and smooth
+
+
+```{r}
+library(zoo)
+
+caro <- mutate(caro, mean_3 = rollmean(caro$speed,k = 3,fill = NA,align = "left"), mean_4 = rollmean(caro$speed,k = 4,fill = NA,align = "left"), mean_5 = rollmean(caro$speed,k = 5,fill = NA,align = "left"), mean_10 = rollmean(caro$speed,k = 10,fill = NA,align = "left"))
+
+ggplot()+
+  geom_line(data=caro,aes(DatetimeUTC, mean_3), col="red")+
+  geom_line(data=caro,aes(DatetimeUTC, mean_4), col="blue")+
+  geom_line(data=caro,aes(DatetimeUTC, mean_5), col="yellow")+
+  geom_line(data=caro,aes(DatetimeUTC, mean_10), col="green")+
+  ggtitle("Comparing derived speed at different smoothing levels")+ylab("speed [m/s]")
+```
+when comparing this figure to the one with the different sampling intervals one can see that applying a moving window reduces the noise but changes in speed can still be observed (different than for the different sampling intervals).
